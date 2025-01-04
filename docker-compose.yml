@@ -9,7 +9,7 @@ services:
         source: /home/puneet/www
         target: /var/www/html
     ports:
-      - "8080:80"
+      - "9090:80"
     networks:
       - app-network
 
