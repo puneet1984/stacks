@@ -1,9 +1,12 @@
 FROM php:8.2-apache
 
+# Enable necessary Apache modules
+RUN a2enmod rewrite proxy proxy_http
+
 # Install the mysqli extension (optional)
 RUN docker-php-ext-install mysqli
 
-# Copy custom php.ini configuration (if needed)
-COPY ./apache/php.ini /usr/local/etc/php/php.ini
+# Copy custom Apache configuration
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 WORKDIR /var/www/html

@@ -1,11 +1,13 @@
 services:
-  apache-php:
+  apache:
     build:
       context: .
-      dockerfile: Dockerfile-php
+      dockerfile: Dockerfile-apache
     container_name: apache-php
     volumes:
-      - /home/puneet/www:/var/www/html
+      - type: bind
+        source: /home/puneet/www
+        target: /var/www/html
     ports:
       - "8080:80"
     networks:
@@ -18,7 +20,9 @@ services:
     container_name: react-app1
     working_dir: /usr/src/app
     volumes:
-      - /home/puneet/react/app1:/usr/src/app
+      - type: bind
+        source: /home/puneet/react/app1
+        target: /usr/src/app
     ports:
       - "3001:3000"
     command: ["npm", "start"]
@@ -32,7 +36,9 @@ services:
     container_name: react-app2
     working_dir: /usr/src/app
     volumes:
-      - /home/puneet/react/app2:/usr/src/app
+      - type: bind
+        source: /home/puneet/react/app2
+        target: /usr/src/app
     ports:
       - "3002:3000"
     command: ["npm", "start"]
