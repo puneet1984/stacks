@@ -19,7 +19,6 @@ services:
     working_dir: /usr/src/app
     volumes:
       - /home/puneet/react/app1:/usr/src/app
-      - /usr/src/app/node_modules
     ports:
       - "3001:3000"
     command: ["npm", "start"]
@@ -34,7 +33,6 @@ services:
     working_dir: /usr/src/app
     volumes:
       - /home/puneet/react/app2:/usr/src/app
-      - /usr/src/app/node_modules
     ports:
       - "3002:3000"
     command: ["npm", "start"]
