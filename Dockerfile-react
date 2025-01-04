@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 RUN npx create-react-app .
 
 # Install global dependencies (e.g., web-vitals and serve)
-RUN npm install -g web-vitals serve
+RUN npm install -g web-vitals
 
 # Expose port 3000 for the React development server
 EXPOSE 3000
