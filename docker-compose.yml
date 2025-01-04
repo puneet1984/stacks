@@ -2,7 +2,7 @@ services:
   apache:
     build:
       context: .
-      dockerfile: Dockerfile-apache
+      dockerfile: Dockerfile-php
     container_name: apache-php
     volumes:
       - type: bind
