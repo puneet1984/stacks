@@ -4,15 +4,15 @@ FROM node:18-alpine
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
-# Install global dependencies (e.g., web-vitals)
+# Install global dependencies (e.g., web-vitals and serve)
 RUN npm install -g web-vitals serve
 
-# Install React dependencies if a package.json exists
-COPY package*.json ./
-RUN if [ -f package.json ]; then npm install; fi
+# Copy package.json if it exists, install dependencies, or create a new React app
+COPY package*.json ./ || true
+RUN [ -f package.json ] && npm install || npx create-react-app .
 
 # Expose port 3000 for the React development server
 EXPOSE 3000
 
-# Default command (to be overridden per app)
+# Start the React app in development mode
 CMD ["npm", "start"]
