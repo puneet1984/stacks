@@ -15,12 +15,12 @@ services:
 
   react-app1:
     build:
-      context: /home/puneet/www/react/app1
+      context: /home/puneet/react/app1
       dockerfile: Dockerfile-react
     container_name: react-app1
     working_dir: /usr/src/app
     volumes:
-      - /home/puneet/www/react/app1:/usr/src/app
+      - /home/puneet/react/app1:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - "3001:3000"
@@ -30,12 +30,12 @@ services:
 
   react-app2:
     build:
-      context: /home/puneet/www/react/app2
+      context: /home/puneet/react/app2
       dockerfile: Dockerfile-react
     container_name: react-app2
     working_dir: /usr/src/app
     volumes:
-      - /home/puneet/www/react/app2:/usr/src/app
+      - /home/puneet/react/app2:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - "3002:3000"
