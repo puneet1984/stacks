@@ -26,20 +26,20 @@ services:
     networks:
       - app-network
 
-  # react-app2:
-  #   build:
-  #     context: /home/puneet/react/app2
-  #     dockerfile: Dockerfile-react
-  #   container_name: react-app2
-  #   working_dir: /usr/src/app
-  #   volumes:
-  #     - /home/puneet/react/app2:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   ports:
-  #     - "3002:3000"
-  #   command: ["npm", "start"]
-  #   networks:
-  #     - app-network
+  react-app2:
+    build:
+      context: /home/puneet/react/app2
+      dockerfile: Dockerfile-react
+    container_name: react-app2
+    working_dir: /usr/src/app
+    volumes:
+      - /home/puneet/react/app2:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3002:3000"
+    command: ["npm", "start"]
+    networks:
+      - app-network
 
 networks:
   app-network:
