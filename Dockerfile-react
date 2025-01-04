@@ -5,7 +5,7 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 # Copy package.json if it exists, install dependencies, or create a new React app
-RUN test -f package.json || npx create-react-app .
+RUN npx create-react-app .
 
 # Install global dependencies (e.g., web-vitals and serve)
 RUN npm install -g web-vitals serve
