@@ -1,0 +1,9 @@
+FROM php:8.2-apache
+
+# Install the mysqli extension (optional)
+RUN docker-php-ext-install mysqli
+
+# Copy custom php.ini configuration (if needed)
+COPY ./apache/php.ini /usr/local/etc/php/php.ini
+
+WORKDIR /var/www/html

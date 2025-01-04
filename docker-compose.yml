@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  apache-php:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    container_name: apache-php
+    volumes:
+      - /home/puneet/www:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+
+  react-app1:
+    build:
+      context: /home/puneet/www/react/app1
+      dockerfile: Dockerfile-react
+    container_name: react-app1
+    working_dir: /usr/src/app
+    volumes:
+      - /home/puneet/www/react/app1:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3001:3000"
+    command: ["npm", "start"]
+    networks:
+      - app-network
+
+  react-app2:
+    build:
+      context: /home/puneet/www/react/app2
+      dockerfile: Dockerfile-react
+    container_name: react-app2
+    working_dir: /usr/src/app
+    volumes:
+      - /home/puneet/www/react/app2:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3002:3000"
+    command: ["npm", "start"]
+    networks:
+      - app-network
+
+networks:
+  app-network:
