@@ -4,11 +4,11 @@ FROM node:18-alpine
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
-# Copy package.json if it exists, install dependencies, or create a new React app
-RUN test -f package.json || npx create-react-app .
+# Copy package.json and package-lock.json (if available)
+COPY package*.json ./
 
-# Install global dependencies (e.g., web-vitals and serve)
-RUN npm install -g web-vitals
+# Install dependencies
+RUN npm install
 
 # Expose port 3000 for the React development server
 EXPOSE 3000

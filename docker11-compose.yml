@@ -15,33 +15,21 @@ services:
 
   react-app1:
     build:
-      context: /home/puneet/react/app1/app
+      context: /home/puneet/react/app1
       dockerfile: /home/puneet/www/stacks/Dockerfile-react
     container_name: react-app1
-    working_dir: /usr/src/app
-    volumes:
-      - type: bind
-        source: /home/puneet/react/app1/app
-        target: /usr/src/app
     ports:
       - "3001:3000"
-    command: ["npm", "start"]
     networks:
       - app-network
 
   react-app2:
     build:
-      context: /home/puneet/react/app2/app
+      context: /home/puneet/react/app2
       dockerfile: /home/puneet/www/stacks/Dockerfile-react
     container_name: react-app2
-    working_dir: /usr/src/app
-    volumes:
-      - type: bind
-        source: /home/puneet/react/app2/app
-        target: /usr/src/app
     ports:
       - "3002:3000"
-    command: ["npm", "start"]
     networks:
       - app-network
 
