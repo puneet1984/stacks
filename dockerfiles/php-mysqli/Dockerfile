@@ -3,9 +3,6 @@ FROM php:8.2-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
     libonig-dev \
     libzip-dev \
     curl \
@@ -21,8 +18,7 @@ RUN apt-get update && apt-get install -y \
     libsamplerate0-dev \
     git \
     wget \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd mbstring zip pdo pdo_mysql mysqli ftp
+    && docker-php-ext-install mbstring zip pdo pdo_mysql mysqli ftp
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -48,14 +44,6 @@ RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
 
 # Set environment variable so the system uses Python from the virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
-
-# Install PJSUA (PJSIP Command-Line Utility)
-WORKDIR /usr/src
-RUN git clone https://github.com/pjsip/pjproject.git \
-    && cd pjproject \
-    && ./configure --enable-shared --disable-video --disable-sound \
-    && make dep && make && make install \
-    && ldconfig
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
