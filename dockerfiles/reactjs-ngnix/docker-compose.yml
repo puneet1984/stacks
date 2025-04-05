@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: .
+    ports:
+      - "8080:80"  # Maps container port 80 to host port 8080
+    volumes:
+      - /user/path/site1:/usr/share/nginx/html/site1
+      - /user/path/site2:/usr/share/nginx/html/site2
+    restart: always

@@ -1,0 +1,38 @@
+# Use an official Node.js runtime as a parent image
+FROM node:18-alpine AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Install create-react-app globally
+RUN npm install -g create-react-app
+
+# Create multiple React apps
+RUN create-react-app site1 && create-react-app site2
+
+# Build site1
+WORKDIR /app/site1
+RUN npm install && npm run build
+
+# Build site2
+WORKDIR /app/site2
+RUN npm install && npm run build
+
+# Use Nginx for serving static files
+FROM nginx:alpine
+
+# Set the working directory in the container
+WORKDIR /usr/share/nginx/html
+
+# Copy built React apps to different directories
+COPY --from=build /app/site1/build /usr/share/nginx/html/site1
+COPY --from=build /app/site2/build /usr/share/nginx/html/site2
+
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]

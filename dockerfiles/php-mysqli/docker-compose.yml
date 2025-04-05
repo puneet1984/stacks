@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  php-apache:
+    build: .
+    container_name: 
+    ports:
+      - "8585:80"
+    volumes:
+      - /home/puneet/www/sipdialer:/var/www/html
