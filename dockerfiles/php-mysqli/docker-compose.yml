@@ -2,8 +2,10 @@ version: '3.8'
 
 services:
   php-apache:
-    build: .
-    container_name: 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php82_mysqli_ftp_mail
     ports:
       - "8585:80"
     volumes:
