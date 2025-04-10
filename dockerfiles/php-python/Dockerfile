@@ -36,7 +36,8 @@ RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
     asterisk-ami \
     pymysql \
     requests \
-    beautifulsoup4
+    beautifulsoup4 \
+    typing
 
 # Set environment variable so the system uses Python from the virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
