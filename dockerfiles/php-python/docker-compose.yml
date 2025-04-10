@@ -7,4 +7,5 @@ services:
     ports:
       - "8585:80"
     volumes:
-      - /home/puneet/www/sipdialer:/var/www/html
+      - /home/puneet/www/:/var/www/html
+      - /home/puneet/config:/var/www/config
