@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   php-apache:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: php82-python:latest
     container_name: php82-python
     ports:
       - "8585:80"      # Apache

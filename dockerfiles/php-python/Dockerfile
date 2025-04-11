@@ -2,9 +2,9 @@
 FROM php:8.2-apache
 
 # Add image labels
-LABEL org.opencontainers.image.title="php-python-app" \
+LABEL org.opencontainers.image.title="php82-python" \
       org.opencontainers.image.version="latest" \
-      maintainer="puneet"
+      maintainer="puneet1984"
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -81,8 +81,8 @@ RUN mkdir -p /var/log/supervisor && \
 # Set working directory for Apache
 WORKDIR /var/www/html
 
-# Expose Apache port
-EXPOSE 80
+# Expose ports
+EXPOSE 80 5000 5001 5002
 
 # Change CMD to use supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
