@@ -3,9 +3,16 @@ version: '3.8'
 services:
   php-apache:
     build: .
-    container_name: SIP_Dialer
+    container_name: php82-python
     ports:
-      - "8585:80"
+      - "8585:80"      # Apache
+      - "5000:5000"    # Email service
+      - "5001:5001"    # FTP uploader
+      - "5002:5002"    # WAHA sender
     volumes:
-      - /home/puneet/www/:/var/www/html
-      - /home/puneet/config:/var/www/config
+      - ~/www/:/var/www/html
+      - ~/config:/var/www/config
+      - ~/config/.env:/opt/services/.env
+    environment:
+      - TZ=Asia/Kolkata
+    restart: unless-stopped
