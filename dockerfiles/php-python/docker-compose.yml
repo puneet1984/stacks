@@ -15,7 +15,7 @@ services:
     volumes:
       - /home/puneet/www/:/var/www/html
       - /home/puneet/config:/var/www/config
-      - /home/puneet/config/.env:/opt/services/.env
+      - /home/puneet/env/:/opt/services/
     environment:
       - TZ=Asia/Kolkata
     restart: unless-stopped
