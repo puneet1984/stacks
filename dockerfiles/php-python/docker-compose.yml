@@ -13,9 +13,9 @@ services:
       - "5001:5001"    # FTP uploader
       - "5002:5002"    # WAHA sender
     volumes:
-      - ~/www/:/var/www/html
-      - ~/config:/var/www/config
-      - ~/config/.env:/opt/services/.env
+      - /home/puneet/www/:/var/www/html
+      - /home/puneet/config:/var/www/config
+      - /home/puneet/config/.env:/opt/services/.env
     environment:
       - TZ=Asia/Kolkata
     restart: unless-stopped
