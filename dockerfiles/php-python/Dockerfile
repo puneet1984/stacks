@@ -60,12 +60,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN a2enmod rewrite
 
 # Create services and logs directories
-RUN mkdir -p /opt/services && \
-    mkdir -p ~/logs && \
-    chmod -R 777 ~/logs
+RUN mkdir -p /opt/services /var/log/app && \
+    chmod -R 777 /var/log/app
 
-# Copy Python service files
+# Copy Python service files and env
 COPY *.py /opt/services/
+COPY .env.example /opt/services/.env
 
 # Set execute permissions
 RUN chmod +x /opt/services/*.py

@@ -36,7 +36,7 @@ if missing_vars:
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='~/logs/waha_monitor.log'
+    filename='/var/log/app/waha_monitor.log'
 )
 
 # Add timezone configuration
