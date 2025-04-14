@@ -22,7 +22,7 @@ if missing_vars:
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='~/logs/waha_sender.log'
+    filename='/var/log/app/waha_sender.log'
 )
 
 class WAHAClient:

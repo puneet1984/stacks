@@ -1,0 +1,8 @@
+/.vscode
+amalappoint/debug.log
+/config
+/.gitold
+/log
+.env
+*.log
+**/*.env

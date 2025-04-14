@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     git \
     wget \
     supervisor \
+    cron \
     && docker-php-ext-install mbstring zip pdo pdo_mysql mysqli
 
 # Install Composer
@@ -59,24 +60,27 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Copy and enable Apache configuration
+COPY vhost.conf /etc/apache2/sites-available/000-default.conf
+RUN a2ensite 000-default.conf
+
 # Create services and logs directories
 RUN mkdir -p /opt/services /var/log/app && \
     chmod -R 777 /var/log/app
 
-# Copy Python service files and env
-COPY *.py /opt/services/
-COPY .env.example /opt/services/.env
+# Setup crontab
+RUN echo "*/3 9-22 * * * /opt/venv/bin/python /opt/services/patient_alert_service.py >> /var/log/app/patient_alert.log 2>&1" > /etc/cron.d/app-cron && \
+    echo "0 10 * * * /opt/venv/bin/python /opt/services/stock_alert_service.py >> /var/log/app/stock_alert.log 2>&1" >> /etc/cron.d/app-cron && \
+    chmod 0644 /etc/cron.d/app-cron && \
+    crontab /etc/cron.d/app-cron
 
-# Set execute permissions
-RUN chmod +x /opt/services/*.py
-
-# Copy supervisor configuration
+# Copy Python service files and env file
+COPY *.py .env /opt/services/
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Create log directory and set permissions
-RUN mkdir -p /var/log/supervisor && \
-    touch /var/log/supervisor/supervisord.log && \
-    chmod -R 777 /var/log
+# Set permissions for Python files
+RUN chmod +x /opt/services/*.py && \
+    chown -R www-data:www-data /opt/services
 
 # Set working directory for Apache
 WORKDIR /var/www/html
@@ -84,5 +88,5 @@ WORKDIR /var/www/html
 # Expose ports
 EXPOSE 80 5000 5001 5002
 
-# Change CMD to use supervisor
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+# Update CMD to run both cron and supervisor
+CMD ["sh", "-c", "service cron start && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]

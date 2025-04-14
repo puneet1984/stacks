@@ -1,6 +1,11 @@
 # Use official PHP with Apache
 FROM php:8.2-apache
 
+# Add image labels
+LABEL org.opencontainers.image.title="php82-python" \
+      org.opencontainers.image.version="latest" \
+      maintainer="puneet1984"
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libonig-dev \
@@ -12,21 +17,21 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     python3-dev \
     build-essential \
-    libasound2-dev \
     libssl-dev \
-    portaudio19-dev \
-    libsamplerate0-dev \
     git \
     wget \
-    cron \
-    supervisor \
-    && docker-php-ext-install mbstring zip pdo pdo_mysql mysqli ftp
+supervisor \
+    && docker-php-ext-install mbstring zip pdo pdo_mysql mysqli
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install PHPMailer
+# Create composer directory and install PHPMailer
+WORKDIR /var/www
 RUN composer require phpmailer/phpmailer
+
+# Set working directory back to Apache default
+WORKDIR /var/www/html
 
 # Create and activate Python virtual environment
 RUN python3 -m venv /opt/venv
@@ -54,11 +59,26 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Copy and enable Apache configuration
+COPY vhost.conf /etc/apache2/sites-available/000-default.conf
+RUN a2ensite 000-default.conf
+
+# Create services and logs directories
+RUN mkdir -p /opt/services /var/log/app && \
+    chmod -R 777 /var/log/app
+
+# Copy Python service files and env file
+COPY *.py .env /opt/services/
+
+# Set permissions for Python files
+RUN chmod +x /opt/services/*.py && \
+    chown -R www-data:www-data /opt/services
+
 # Set working directory for Apache
 WORKDIR /var/www/html
 
-# Expose Apache port
-EXPOSE 80
+# Expose ports
+EXPOSE 80 5000 5001 5002
 
 # Start Apache
 CMD ["apache2-foreground"]

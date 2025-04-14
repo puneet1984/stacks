@@ -26,7 +26,7 @@ if not all([SENDER_EMAIL, SENDER_PASSWORD]):
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='~/logs/sendemail.log'
+    filename='/var/log/app/sendemail.log'
 )
 
 app = Flask(__name__)

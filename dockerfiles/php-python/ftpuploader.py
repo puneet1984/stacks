@@ -25,7 +25,7 @@ if missing_vars:
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='~/logs/ftp_upload.log'
+    filename='/var/log/app/ftp_upload.log'
 )
 
 app = Flask(__name__)
@@ -34,6 +34,13 @@ app.config['UPLOAD_FOLDER'] = 'htdocs/'
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Add allowed extensions configuration
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def ftp_upload(local_file, remote_filename):
     """Upload file to FTP server"""
@@ -45,7 +52,8 @@ def ftp_upload(local_file, remote_filename):
             with open(local_file, 'rb') as file:
                 ftp.storbinary(f'STOR {remote_filename}', file)
             
-            logging.info(f"Successfully uploaded {remote_filename}")
+            file_url = f"{BASE_URL.rstrip('/')}/{remote_filename}"
+            logging.info(f"Successfully uploaded {remote_filename} - URL: {file_url}")
             return True
     except Exception as e:
         logging.error(f"FTP upload failed: {str(e)}")
@@ -61,6 +69,9 @@ def upload_file():
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
         
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'File type not allowed'}), 400
+        
         filename = secure_filename(file.filename)
         local_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
@@ -72,17 +83,21 @@ def upload_file():
             # Clean up temporary file
             os.remove(local_path)
             file_url = f"{BASE_URL.rstrip('/')}/{filename}"
+            logging.info(f"File accessible at: {file_url}")
             return jsonify({
                 'message': 'File uploaded successfully',
                 'filename': filename,
                 'url': file_url
             }), 200
         else:
-            os.remove(local_path)
+            if os.path.exists(local_path):
+                os.remove(local_path)
             return jsonify({'error': 'FTP upload failed'}), 500
             
     except Exception as e:
         logging.error(f"Upload error: {str(e)}")
+        if os.path.exists(local_path):
+            os.remove(local_path)
         return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
