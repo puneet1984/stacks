@@ -6,3 +6,7 @@ amalappoint/debug.log
 .env
 *.log
 **/*.env
+stacks/dockerfiles/waha/media/*
+stacks/dockerfiles/waha/sessions/*
+dockerfiles/WAHA/media/*
+dockerfiles/WAHA/sessions/*

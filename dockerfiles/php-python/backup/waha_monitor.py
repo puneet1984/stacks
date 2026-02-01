@@ -13,7 +13,6 @@ load_dotenv()
 # WAHA Configuration
 WAHA_HOST = os.getenv('WAHA_HOST')
 WAHA_SESSION = os.getenv('WAHA_SESSION')
-WAHA_APIKEY = os.getenv('WAHA_APIKEY')
 
 # Email Configuration
 EMAIL_SERVICE = os.getenv('EMAIL_SERVICE')
@@ -25,7 +24,7 @@ BUSINESS_END = int(os.getenv('BUSINESS_END'))
 
 # Validate required environment variables
 required_vars = [
-    'WAHA_HOST', 'WAHA_SESSION', 'WAHA_APIKEY',
+    'WAHA_HOST', 'WAHA_SESSION', 
     'EMAIL_SERVICE', 'WAHA_ALERT_EMAIL',
     'BUSINESS_START', 'BUSINESS_END'
 ]
@@ -47,11 +46,7 @@ def send_qr_code_alert():
     """Send QR code email"""
     try:
         # Get QR code image
-        qr_response = requests.get(
-            f"{WAHA_HOST}/api/default/auth/qr?format=image",
-            stream=True,
-            headers={'X-Api-Key': WAHA_APIKEY}
-        )
+        qr_response = requests.get(f"{WAHA_HOST}/api/default/auth/qr?format=image", stream=True)
         if qr_response.status_code != 200:
             logging.error("Failed to get QR code image")
             return False
@@ -87,10 +82,7 @@ def send_qr_code_alert():
 def check_waha_session():
     """Check if WAHA session is connected"""
     try:
-        response = requests.get(
-            f"{WAHA_HOST}/api/sessions/{WAHA_SESSION}",
-            headers={'X-Api-Key': WAHA_APIKEY}
-        )
+        response = requests.get(f"{WAHA_HOST}/api/sessions/{WAHA_SESSION}")
         if response.status_code == 200:
             data = response.json()
             status = data.get('status')

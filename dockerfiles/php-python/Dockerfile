@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     curl \
     unzip \
+    nano \
     python3 \
     python3-pip \
     python3-venv \
@@ -52,7 +53,8 @@ RUN /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
     ftputil \
     pytz \
     python-dotenv \
-    werkzeug
+    werkzeug \
+    pdfminer.six
 
 # Set environment variable so the system uses Python from the virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
@@ -69,24 +71,21 @@ RUN mkdir -p /opt/services /var/log/app && \
     chmod -R 777 /var/log/app
 
 # Setup crontab
-RUN echo "*/3 9-22 * * * /opt/venv/bin/python /opt/services/patient_alert_service.py >> /var/log/app/patient_alert.log 2>&1" > /etc/cron.d/app-cron && \
-    echo "0 10 * * * /opt/venv/bin/python /opt/services/stock_alert_service.py >> /var/log/app/stock_alert.log 2>&1" >> /etc/cron.d/app-cron && \
+RUN echo "*/3 * * * * /opt/venv/bin/python3 /opt/services/patient_alert_service.py >> /var/log/app/patient_alert.log 2>&1" > /etc/cron.d/app-cron && \
+    echo "0 10 * * * /opt/venv/bin/python3 /opt/services/stock_alert_service.py >> /var/log/app/stock_alert.log 2>&1" >> /etc/cron.d/app-cron && \
+    echo "0 14 * * * /opt/venv/bin/python3 /opt/services/google_review_reminder.py >> /var/log/app/google_review_reminder.log 2>&1" >> /etc/cron.d/app-cron && \
+
     chmod 0644 /etc/cron.d/app-cron && \
     crontab /etc/cron.d/app-cron
 
-# Copy Python service files and env file
-COPY *.py .env /opt/services/
+# Copy only supervisor configuration
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Set permissions for Python files
-RUN chmod +x /opt/services/*.py && \
-    chown -R www-data:www-data /opt/services
 
 # Set working directory for Apache
 WORKDIR /var/www/html
 
 # Expose ports
-EXPOSE 80 5000 5001 5002
+EXPOSE 80 5000 5001 5002 5003
 
 # Update CMD to run both cron and supervisor
 CMD ["sh", "-c", "service cron start && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]

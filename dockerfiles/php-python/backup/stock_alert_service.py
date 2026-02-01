@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import pymysql
-from pymysql.cursors import DictCursor  # More explicit import
+from pymysql.cursors import DictCursor
 import requests
 import logging
 
@@ -12,10 +12,10 @@ load_dotenv()
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='/var/log/app/patient_alerts.log'
+    filename='/var/log/app/stock_alerts.log'
 )
 
-class PatientMessageService:
+class StockAlertService:
     def __init__(self):
         self.waha_url = os.getenv('WAHA_API_URL', 'http://localhost:5002')
         self.db_config = {
@@ -25,21 +25,17 @@ class PatientMessageService:
             'database': os.getenv('DB_NAME'),
             'port': int(os.getenv('DB_PORT')),
             'charset': 'utf8mb4',
-            'cursorclass': DictCursor,  # Direct reference to cursor class
+            'cursorclass': DictCursor,
             'autocommit': False
         }
         self._connection = None
 
     @property
     def connection(self):
-        """Get database connection with specific cursor class"""
+        """Get database connection with lazy loading"""
         if self._connection is None:
             self._connection = pymysql.connect(**self.db_config)
         return self._connection
-
-    def get_cursor(self, cursor_class=None):
-        """Get cursor with optional different cursor type"""
-        return self.connection.cursor(cursor_class or DictCursor)
 
     def _send_whatsapp_message(self, phone, message):
         try:
@@ -51,39 +47,39 @@ class PatientMessageService:
             return 'SUCCESS', None
         except requests.RequestException as e:
             error = f"WhatsApp API Error: {str(e)}"
-            return 'PENDING', error
+            return 'FAILED', error
 
-    def process_pending_messages(self):
-        """Process all pending patient-related messages from sms_logs table"""
+    def process_stock_alerts(self):
+        """Process all pending stock alerts"""
         try:
-            with self.get_cursor() as cursor:
+            with self.connection.cursor() as cursor:
                 cursor.execute("""
-                    SELECT patient_id, mobile_number, message, template_id, 
-                           message_type, sms_type 
-                    FROM sms_logs 
+                    SELECT id, item_id, message, mobile_number, alert_type 
+                    FROM stock_alert_logs 
                     WHERE status = 'PENDING'
-                    AND sms_type IN ('REGISTRATION', 'APPOINTMENT')
+                    AND (sent_at IS NULL OR next_alert_after <= NOW())
+                    FOR UPDATE
                 """)
-                pending_msgs = cursor.fetchall()
+                pending_alerts = cursor.fetchall()
+
                 results = {'processed': 0, 'success': 0, 'failed': 0}
                 
-                if not pending_msgs:
+                if not pending_alerts:
                     return results
 
-                for msg in pending_msgs:
-                    status, error = self._send_whatsapp_message(msg['mobile_number'], msg['message'])
+                for alert in pending_alerts:
+                    status, error = self._send_whatsapp_message(alert['mobile_number'], alert['message'])
                     
                     if error:
-                        logging.error(f"Message ID {msg['patient_id']}: {error}")
+                        logging.error(f"Stock Alert ID {alert['id']}: {error}")
 
                     cursor.execute("""
-                        UPDATE sms_logs 
+                        UPDATE stock_alert_logs 
                         SET status = %s,
-                            message_type = 'whatsapp',
                             error_message = %s,
                             sent_at = NOW()
-                        WHERE patient_id = %s
-                    """, (status, error, msg['patient_id']))
+                        WHERE id = %s
+                    """, (status, error, alert['id']))
                     
                     results['processed'] += 1
                     if status == 'SUCCESS':
@@ -96,7 +92,7 @@ class PatientMessageService:
 
         except Exception as e:
             self.connection.rollback()
-            logging.error(f"Error processing messages: {str(e)}")
+            logging.error(f"Error processing stock alerts: {str(e)}")
             raise
         finally:
             if self._connection:
@@ -105,9 +101,7 @@ class PatientMessageService:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    service = PatientMessageService()
-    
-    # Process patient messages
-    patient_results = service.process_pending_messages()
-    logging.info(f"Processed {patient_results['processed']} patient messages: "
-                f"{patient_results['success']} successful, {patient_results['failed']} failed")
+    service = StockAlertService()
+    results = service.process_stock_alerts()
+    logging.info(f"Processed {results['processed']} stock alerts: "
+                f"{results['success']} successful, {results['failed']} failed")

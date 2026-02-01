@@ -10,7 +10,6 @@ services:
       - "5000:5000"    # Email service
       - "5001:5001"    # FTP uploader
       - "5002:5002"    # WAHA sender
-      - "5003:5003"    # PDF Miner API
     volumes:
       - /home/puneet/www/:/var/www/html
       - /home/puneet/config:/var/www/config

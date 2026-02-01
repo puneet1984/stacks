@@ -11,10 +11,9 @@ load_dotenv()
 # WAHA Configuration
 WAHA_HOST = os.getenv('WAHA_HOST')
 WAHA_SESSION = os.getenv('WAHA_SESSION')
-WAHA_APIKEY = os.getenv('WAHA_APIKEY')
 
 # Validate required environment variables
-required_vars = ['WAHA_HOST', 'WAHA_SESSION', 'WAHA_APIKEY']
+required_vars = ['WAHA_HOST', 'WAHA_SESSION']
 missing_vars = [var for var in required_vars if not os.getenv(var)]
 if missing_vars:
     raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
@@ -27,20 +26,16 @@ logging.basicConfig(
 )
 
 class WAHAClient:
-    def __init__(self, base_url=WAHA_HOST, session=WAHA_SESSION, api_key=WAHA_APIKEY):
+    def __init__(self, base_url=WAHA_HOST, session=WAHA_SESSION):
         self.base_url = base_url.rstrip('/')
         self.session = session
-        self.api_key = api_key
 
     def check_session(self):
         """Check if WhatsApp session is active and working"""
         try:
             response = requests.get(
                 f"{self.base_url}/api/sessions/{self.session}",
-                headers={
-                    'Accept': 'application/json',
-                    'X-Api-Key': self.api_key
-                }
+                headers={'Accept': 'application/json'}
             )
             response.raise_for_status()
             result = response.json()
@@ -74,10 +69,7 @@ class WAHAClient:
                     "phone": phone,  # Send raw phone number
                     "session": self.session
                 },
-                headers={
-                    'Content-Type': 'application/json',
-                    'X-Api-Key': self.api_key
-                }
+                headers={'Content-Type': 'application/json'}
             )
             response.raise_for_status()
             result = response.json()
@@ -109,10 +101,7 @@ class WAHAClient:
             response = requests.post(
                 f"{self.base_url}/api/sendText",
                 json=payload,
-                headers={
-                    'Content-Type': 'application/json',
-                    'X-Api-Key': self.api_key
-                }
+                headers={'Content-Type': 'application/json'}
             )
             response.raise_for_status()
             return response.json()

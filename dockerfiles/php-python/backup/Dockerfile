@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     git \
     wget \
-supervisor \
+    supervisor \
+    cron \
     && docker-php-ext-install mbstring zip pdo pdo_mysql mysqli
 
 # Install Composer
@@ -67,12 +68,16 @@ RUN a2ensite 000-default.conf
 RUN mkdir -p /opt/services /var/log/app && \
     chmod -R 777 /var/log/app
 
-# Copy Python service files and env file
-COPY *.py .env /opt/services/
+# Setup crontab
+RUN echo "*/3 * * * * /opt/venv/bin/python3 /opt/services/patient_alert_service.py >> /var/log/app/patient_alert.log 2>&1" > /etc/cron.d/app-cron && \
+    echo "0 10 * * * /opt/venv/bin/python3 /opt/services/stock_alert_service.py >> /var/log/app/stock_alert.log 2>&1" >> /etc/cron.d/app-cron && \
+    # echo "0 14 * * * /opt/venv/bin/python3 /opt/services/google_review_reminder.py >> /var/log/app/google_review_reminder.log 2>&1" >> /etc/cron.d/app-cron && \
 
-# Set permissions for Python files
-RUN chmod +x /opt/services/*.py && \
-    chown -R www-data:www-data /opt/services
+    chmod 0644 /etc/cron.d/app-cron && \
+    crontab /etc/cron.d/app-cron
+
+# Copy only supervisor configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set working directory for Apache
 WORKDIR /var/www/html
@@ -80,5 +85,5 @@ WORKDIR /var/www/html
 # Expose ports
 EXPOSE 80 5000 5001 5002
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Update CMD to run both cron and supervisor
+CMD ["sh", "-c", "service cron start && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
